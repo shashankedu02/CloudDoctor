@@ -1,0 +1,1 @@
+{"Version":"2012-10-17","Statement":[{"Sid":"ReadInventory","Effect":"Allow","Action":["s3:GetObject","s3:ListBucket"],"Resource":["arn:aws:s3:::team-documents","arn:aws:s3:::team-documents/reports/*"]},{"Sid":"DescribeInstances","Effect":"Allow","Action":["ec2:DescribeInstances","ec2:DescribeSecurityGroups"],"Resource":"*"}]}
