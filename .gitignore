@@ -1,0 +1,12 @@
+# Python
+backend/.venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/.pytest_cache/
+backend/cloudsentinel.db
+# JavaScript
+frontend/node_modules/
+frontend/dist/
+# Local environment
+.env
+.DS_Store
