@@ -1,0 +1,1 @@
+{"Version":"2012-10-17","Statement":[{"Sid":"AdminAll","Effect":"Allow","Action":"*","Resource":"*"},{"Sid":"IamEscalation","Effect":"Allow","Action":["iam:PassRole","iam:CreatePolicyVersion","iam:SetDefaultPolicyVersion","iam:AttachRolePolicy","iam:PutRolePolicy","iam:CreateAccessKey"],"Resource":"*"}]}
