@@ -12,8 +12,7 @@ from .analyzer.rules import RULES
 from . import database
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-logger = logging.getLogger("cloudsentinel")
-app = FastAPI(title="CloudSentinel API", version="1.0.0", description="Local-only, deterministic AWS IAM policy analysis.")
+app = FastAPI(title="CloudDoctor API", version="1.0.0", description="Local-only, deterministic AWS IAM policy analysis.")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"], allow_methods=["*"], allow_headers=["*"])
 SAMPLES = Path(__file__).resolve().parents[2] / "sample_policies"
 
@@ -22,7 +21,7 @@ class AnalyzeRequest(BaseModel):
     policy_name: str | None = Field(None, max_length=120)
 
 @app.get("/api/health")
-def health(): return {"status": "ok", "service": "CloudSentinel"}
+def health(): return {"status": "ok", "service": "CloudDoctor"}
 
 @app.post("/api/analyze", status_code=201)
 def analyze(request: AnalyzeRequest):
