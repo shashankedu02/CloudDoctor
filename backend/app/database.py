@@ -1,12 +1,20 @@
 from __future__ import annotations
+
 import json
+import os
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path(__file__).resolve().parents[1] / "cloudsentinel.db"
+DEFAULT_DB_PATH = Path(__file__).resolve().parents[1] / "clouddoctor.db"
+
+
+def db_path() -> Path:
+    """SQLite file for scan metadata; override with CLOUDDOCTOR_DB_PATH (tests use a temporary file)."""
+    return Path(os.environ.get("CLOUDDOCTOR_DB_PATH", DEFAULT_DB_PATH))
+
 
 def connection():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(db_path())
     conn.row_factory = sqlite3.Row
     conn.execute("""CREATE TABLE IF NOT EXISTS scans (scan_id TEXT PRIMARY KEY, timestamp TEXT NOT NULL, risk_score INTEGER NOT NULL, risk_level TEXT NOT NULL, summary TEXT NOT NULL, findings TEXT NOT NULL, statement_count INTEGER NOT NULL, rules_triggered TEXT NOT NULL, policy_name TEXT)""")
     return conn
