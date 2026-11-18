@@ -2,11 +2,9 @@
 
 > **See the risk. Understand the exposure. Secure your cloud.**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/shashankedu02/CloudDoctor/actions/workflows/ci.yml/badge.svg)](https://github.com/shashankedu02/CloudDoctor/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python: 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/React-18+-61DAFB.svg)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6.svg)](https://www.typescriptlang.org/)
 
 **CloudDoctor** is a local-first AWS IAM policy document analyser designed for developers, DevOps engineers, and security reviewers. It parses policy JSON documents without executing them, applies deterministic security rules, and returns evidence-backed findings with a transparent prioritisation risk score (0–100).
 
@@ -25,9 +23,10 @@ AWS Identity and Access Management (IAM) policies are deceptively compact. A wil
 ## Key Features
 
 - **Strict IAM Document Parser:** Handles IAM policy structure, single strings vs. arrays for `Action` and `Resource`, `NotAction`, `NotResource`, `Condition` blocks, and `Effect` (`Allow` vs. `Deny`).
-- **10 Explainable Rule Engines:** Identifies privilege escalations with matched action/resource evidence, statement IDs (`Sid`), remediation steps, and heuristic confidence tags.
+- **10 Explainable Rules:** Flag privilege-escalation patterns with matched action/resource evidence, statement IDs (`Sid`), remediation steps, and heuristic confidence tags.
 - **Deterministic Risk Scoring:** Scores each policy deterministically from 0 to 100 with clear severity thresholds (Low, Moderate, High, Critical).
-- **Local-First & Privacy Preserving:** No AWS API keys, no external network calls, no cloud telemetry, and zero raw-policy persistence.
+- **IAM Wildcard Matching:** Action patterns are matched the way IAM evaluates them (case-insensitive `*` and `?`), so `iam:Pass*`, `iam:*Role*` and `*` are all recognised as granting `iam:PassRole`.
+- **Local-First & Privacy Preserving:** No AWS API keys, no external network calls (the UI loads no remote fonts or scripts), no cloud telemetry, and raw policy text is never written to the database (covered by a test).
 - **Interactive Security Dashboard:** Modern React + TypeScript interface featuring scan history, sample policy library, severity visualizer, and policy inspector.
 - **Audit Reports:** Export scan results to JSON or formatted printable summaries.
 
@@ -61,7 +60,7 @@ flowchart TD
 
 | Rule | Detection Target | Default Severity | Description |
 | :--- | :--- | :---: | :--- |
-| **IAM-001** | Full Administrative Wildcard (`*`) | **Critical** | Flags `Action: "*"` combined with `Resource: "*"`. |
+| **IAM-001** | Full Administrative Wildcard (`*`) | **Critical** | Flags `Action: "*"` (or `"*:*"`) in any Allow statement, whatever its resource scope. |
 | **IAM-002** | Sensitive Actions on Broad Resources | **High / Critical** | Detects high-privilege IAM mutations on unconstrained targets. |
 | **IAM-003** | Broad `iam:PassRole` | **Critical** | Catches `iam:PassRole` without restrictive resource ARNs. |
 | **IAM-004** | Policy Version Creation & Activation | **Critical** | Detects permission to create and set new default policy versions. |
@@ -113,6 +112,8 @@ uvicorn app.main:app --reload --port 8000
 ```
 FastAPI Swagger documentation will be available at: `http://127.0.0.1:8000/docs`
 
+Scan metadata is stored in `backend/clouddoctor.db`. Set `CLOUDDOCTOR_DB_PATH` to use a different file.
+
 ### 2. Frontend Setup
 In a separate terminal:
 ```bash
@@ -141,9 +142,10 @@ Open `http://localhost:5173` to launch the **CloudDoctor** dashboard.
 
 ## Testing & Quality
 
-Run backend unit and security tests:
+Run backend lint and tests (each test uses its own temporary database, so your scan history is never touched):
 ```bash
 cd backend
+ruff check . && ruff format --check .
 pytest -v
 ```
 
@@ -153,11 +155,17 @@ cd frontend
 pnpm run build
 ```
 
+GitHub Actions runs all of the above on every push to `main` and on every pull request (`.github/workflows/ci.yml`).
+
 ---
 
 ## Limitations & Roadmap
 
 - **CloudDoctor** focuses on static IAM policy analysis and does not resolve live AWS SCPs, resource-based policies, or runtime permission boundaries.
+- Each Allow statement is checked on its own. `Deny` statements are skipped, so an Allow that another statement denies is still reported; the score can overstate risk for such policies.
+- A resource counts as "broad" only when it is `"*"`, missing, or expressed with `NotResource`. Wildcard ARNs such as `arn:aws:iam::*:role/*` are not yet treated as broad, so findings that depend on broad scope (IAM-002, -003, -005, -006) can be missed for them.
+- Condition checks only recognise a fixed list of restrictive keys (IAM-007); they do not evaluate condition values.
+- The score is a prioritisation heuristic, not a measure of exploitability.
 - **Planned Roadmap:**
   - [ ] SARIF report export for GitHub Actions CI/CD pipelines
   - [ ] AWS IAM Access Analyzer cross-verification adapter
