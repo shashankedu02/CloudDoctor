@@ -1,1 +1,1 @@
-"""CloudSentinel local IAM policy analysis service."""
+"""CloudDoctor local IAM policy analysis service."""
