@@ -20,7 +20,8 @@ def test_health_and_scan_lifecycle():
     assert client.get(f"/api/scans/{scan_id}").status_code == 404
 
 
-def test_policy_text_is_not_persisted(isolated_database):
+def test_policy_without_findings_leaves_no_trace_in_database(isolated_database):
+    # Findings quote matched resources as evidence; a statement with no findings must not be stored at all.
     marker = "arn:aws:iam::123456789012:role/UniqueMarkerRole"
     policy = {"Statement": {"Effect": "Allow", "Action": "s3:GetObject", "Resource": marker}}
     assert client.post("/api/analyze", json={"policy": policy}).status_code == 201
