@@ -1,17 +1,23 @@
 from __future__ import annotations
-import json, logging, uuid
+
+import json
+import logging
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
+from . import database
 from .analyzer.engine import analyze_policy
 from .analyzer.parser import PolicyValidationError
 from .analyzer.rules import RULES
-from . import database
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logger = logging.getLogger("clouddoctor")
 app = FastAPI(title="CloudDoctor API", version="1.0.0", description="Local-only, deterministic AWS IAM policy analysis.")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"], allow_methods=["*"], allow_headers=["*"])
 SAMPLES = Path(__file__).resolve().parents[2] / "sample_policies"
