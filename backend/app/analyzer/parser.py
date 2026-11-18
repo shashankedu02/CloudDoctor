@@ -1,4 +1,5 @@
 """Strict, non-evaluating parser for IAM policy JSON documents."""
+
 from __future__ import annotations
 
 import json
