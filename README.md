@@ -26,7 +26,7 @@ AWS Identity and Access Management (IAM) policies are deceptively compact. A wil
 - **10 Explainable Rules:** Flag privilege-escalation patterns with matched action/resource evidence, statement IDs (`Sid`), remediation steps, and heuristic confidence tags.
 - **Deterministic Risk Scoring:** Scores each policy deterministically from 0 to 100 with clear severity thresholds (Low, Moderate, High, Critical).
 - **IAM Wildcard Matching:** Action patterns are matched the way IAM evaluates them (case-insensitive `*` and `?`), so `iam:Pass*`, `iam:*Role*` and `*` are all recognised as granting `iam:PassRole`.
-- **Local-First & Privacy Preserving:** No AWS API keys, no external network calls (the UI loads no remote fonts or scripts), no cloud telemetry, and raw policy text is never written to the database (covered by a test).
+- **Local-First & Privacy Preserving:** No AWS API keys, no external network calls (the UI loads no remote fonts or scripts), no cloud telemetry, and the submitted policy document itself is never written to the database. Findings do quote the matched actions, resources and conditions as evidence, and those are stored with the scan.
 - **Interactive Security Dashboard:** Modern React + TypeScript interface featuring scan history, sample policy library, severity visualizer, and policy inspector.
 - **Audit Reports:** Export scan results to JSON or formatted printable summaries.
 
