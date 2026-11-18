@@ -1,4 +1,5 @@
 from collections import Counter
+
 from .parser import parse_policy
 from .rules import evaluate
 from .scoring import score_findings
