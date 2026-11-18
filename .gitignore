@@ -3,6 +3,7 @@ backend/.venv/
 backend/__pycache__/
 backend/**/__pycache__/
 backend/.pytest_cache/
+backend/clouddoctor.db
 backend/cloudsentinel.db
 # JavaScript
 frontend/node_modules/
